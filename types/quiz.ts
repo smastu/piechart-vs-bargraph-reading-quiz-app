@@ -1,0 +1,31 @@
+export type ChartType = "pie" | "bar"
+export type QuestionType = "percentage" | "rank"
+
+export interface DataItem {
+  name: string
+  value: number
+}
+
+export interface Question {
+  data: DataItem[]
+  chartType: ChartType
+  questionType: QuestionType
+  questionParam: number | null // rankの場合は何番目かを示す数値、percentageの場合はnull
+  options: string[]
+  correctAnswer: string
+}
+
+export interface QuizSet {
+  setId: number
+  questions: Question[]
+}
+
+export interface QuizResult {
+  questionNumber: number
+  chartType: ChartType
+  data: DataItem[]
+  userAnswer: string
+  correctAnswer: string
+  isCorrect: boolean
+  timeSpent: number // ミリ秒
+}
