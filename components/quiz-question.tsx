@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect } from "react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -21,6 +22,7 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
   const [inputValue, setInputValue] = useState("")
   const [inputError, setInputError] = useState<string | null>(null)
 
+  // question が undefined の場合は早期リターン
   if (!question) {
     return (
       <Card>
@@ -35,37 +37,42 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
   }
 
   const isTwoCategories = question.data.length === 2
-  const targetCategory = isTwoCategories ? question.data[0].name : null
 
+  // 入力値が変更されたときの処理
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setInputValue(value)
 
+    // 入力値の検証
     if (value === "") {
       setInputError(null)
-      setSelectedAnswer(null)
+      setSelectedAnswer(null) // 空の場合は回答をクリア
     } else {
       const numValue = Number.parseFloat(value)
       if (isNaN(numValue)) {
         setInputError("数値を入力してください")
-        setSelectedAnswer(null)
+        setSelectedAnswer(null) // 無効な値の場合は回答をクリア
       } else if (numValue < 0 || numValue > 100) {
         setInputError("0から100の間の数値を入力してください")
-        setSelectedAnswer(null)
+        setSelectedAnswer(null) // 範囲外の値の場合は回答をクリア
       } else {
         setInputError(null)
+        // 有効な値の場合は即座に回答として設定
         setSelectedAnswer(`${numValue}%`)
       }
     }
   }
 
+  // 入力フィールドでEnterキーが押されたときの処理
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault()
+      e.preventDefault() // フォーム送信を防止
     }
   }
 
+  // コンポーネントがマウントされたときに実行
   useEffect(() => {
+    // 質問が変わったときに入力値をリセット
     setInputValue("")
     setInputError(null)
   }, [question])
@@ -75,7 +82,7 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
       <CardHeader>
         <CardTitle>
           {isTwoCategories
-            ? `${targetCategory}の領域は全体の何パーセントぐらいだと思いますか？`
+            ? "領域は全体の何パーセントぐらいだと思いますか？"
             : `${question.questionParam}番目に割合が大きいと思う領域はどれですか？`}
         </CardTitle>
       </CardHeader>
