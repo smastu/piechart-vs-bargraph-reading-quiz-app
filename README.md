@@ -1,30 +1,146 @@
-# Txt data quiz app
+# グラフ読み取りクイズアプリ
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+円グラフと帯グラフを使った読み取りクイズアプリです。ランダムに生成されたデータをグラフで表示し、ユーザーはそのグラフから情報を読み取って回答します。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/smatsumotogk-8435s-projects/v0-txt-data-quiz-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/9pbcrbIBOcF)
+## 機能
 
-## Overview
+- 200パターンのデータを模擬するランダムなデータ生成
+- 10セット（各20問）のクイズを提供
+- 円グラフと帯グラフをランダムに表示
+- 2種類の問題タイプ：
+  - データが2種類の場合：パーセンテージを推測する問題
+  - データが3種類以上の場合：n番目に割合が大きい領域を特定する問題
+- 即座の正解・不正解フィードバック
+- 回答時間の計測
+- 結果のCSVダウンロード機能
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 技術スタック
 
-## Deployment
+- Next.js 15.2.4
+- React 19
+- TypeScript
+- Tailwind CSS
+- Recharts（グラフ描画）
+- Radix UI（UIコンポーネント）
 
-Your project is live at:
+## セットアップ
 
-**[https://vercel.com/smatsumotogk-8435s-projects/v0-txt-data-quiz-app](https://vercel.com/smatsumotogk-8435s-projects/v0-txt-data-quiz-app)**
+1. リポジトリのクローン
+```bash
+git clone [repository-url]
+cd piechart-vs-bargraph-reading-quiz-app
+```
 
-## Build your app
+2. 依存関係のインストール
+```bash
+# pnpmがインストールされていない場合は先にインストール
+npm install -g pnpm
 
-Continue building your app on:
+# プロジェクトの依存関係をインストール
+pnpm install
+```
 
-**[https://v0.dev/chat/projects/9pbcrbIBOcF](https://v0.dev/chat/projects/9pbcrbIBOcF)**
+3. 開発サーバーの起動
+```bash
+pnpm dev
+```
 
-## How It Works
+4. ブラウザで http://localhost:3000 にアクセス
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 開発サーバーの再起動
+
+1. 現在実行中のサーバーを停止
+   - ターミナルで `Ctrl + C` を押す
+
+2. サーバーを再起動
+```bash
+pnpm dev
+```
+
+## トラブルシューティング
+
+### サーバーが起動しない場合
+
+1. ポート3000が使用中の場合
+```bash
+# Windowsの場合
+netstat -ano | findstr 3000
+# 使用中のプロセスを終了するか、別のポートを指定
+set PORT=3001
+pnpm dev
+```
+
+2. 依存関係の問題
+```bash
+# node_modulesを削除して再インストール
+rm -rf node_modules
+pnpm install
+```
+
+3. キャッシュの問題
+```bash
+# Next.jsのキャッシュをクリア
+rm -rf .next
+pnpm dev
+```
+
+### ページが表示されない場合
+
+1. ブラウザのキャッシュをクリア
+2. 別のブラウザで試す
+3. 以下のURLでアクセスを試す：
+   - http://localhost:3000
+   - http://127.0.0.1:3000
+   - http://[ローカルIP]:3000（例：http://172.19.135.13:3000）
+
+## デプロイ方法
+
+### Vercelへのデプロイ（推奨）
+
+1. Vercelアカウントを作成（https://vercel.com）
+
+2. GitHubリポジトリとVercelを連携
+
+3. 以下の環境変数を設定（必要な場合）：
+   - `NEXT_PUBLIC_API_URL`（APIのURL）
+
+4. デプロイボタンをクリック
+
+### その他のホスティングサービスへのデプロイ
+
+1. プロジェクトのビルド
+```bash
+pnpm build
+```
+
+2. 生成された`out`ディレクトリの内容をホスティングサービスにアップロード
+
+## 使い方
+
+1. 「クイズをスタート」ボタンをクリックしてクイズを開始
+2. 表示されたグラフを読み取り、質問に回答
+3. 「回答する」ボタンをクリックして回答を確定
+4. フィードバックを確認し、「次の問題へ」ボタンをクリック
+5. 全20問回答後、結果が表示
+6. 「結果をダウンロード」ボタンをクリックして詳細な結果をCSVファイルとして保存
+
+## データ形式
+
+### クイズデータ
+- 各セットは20問で構成
+- 10セット（合計200問）のデータを用意
+- データは`lib/quiz-generator.ts`で生成
+
+### 結果データ（CSV）
+以下の情報が記録されます：
+- 問題番号
+- グラフタイプ（円グラフ/帯グラフ）
+- データ
+- ユーザー回答
+- 正解
+- 正誤
+- 所要時間（ミリ秒）
+
+## ライセンス
+
+MIT License

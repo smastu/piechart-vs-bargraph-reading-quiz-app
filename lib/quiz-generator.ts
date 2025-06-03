@@ -44,10 +44,10 @@ function generateRandomData(categoryCount: number): DataItem[] {
 
 // 2カテゴリのデータに対する問題を生成
 function generateTwoCategoryQuestion(data: DataItem[]): Question {
-  const blueValue = data[1].value
-
-  // 正解の値を設定
-  const correctAnswer = `${blueValue}%`
+  // どちらのカテゴリを問うかをランダムに決定
+  const targetIndex = getRandomInt(0, 1)
+  const targetCategory = data[targetIndex].name
+  const correctAnswer = `${data[targetIndex].value}%`
 
   return {
     data,
@@ -56,6 +56,7 @@ function generateTwoCategoryQuestion(data: DataItem[]): Question {
     questionParam: null,
     options: [], // 自由入力なので選択肢は空配列
     correctAnswer,
+    targetCategory,
   }
 }
 
@@ -68,12 +69,15 @@ function generateMultiCategoryQuestion(data: DataItem[]): Question {
   const rank = getRandomInt(1, Math.min(data.length, 3))
   const targetItem = sortedData[rank - 1]
 
+  // 選択肢はデータと同じものを使用（Aから順に表示）
+  const options = data.map((item) => item.name)
+
   return {
     data,
     chartType: Math.random() < 0.5 ? "pie" : "bar",
     questionType: "rank",
     questionParam: rank,
-    options: data.map((item) => item.name).sort(() => Math.random() - 0.5),
+    options,
     correctAnswer: targetItem.name,
   }
 }
@@ -92,9 +96,8 @@ export function generateQuizSet(): QuizSet {
 
   // ランク問題を10問生成
   for (let i = 0; i < 10; i++) {
-    // 3〜5カテゴリのデータを生成
-    const categoryCount = getRandomInt(3, 5)
-    const data = generateRandomData(categoryCount)
+    // 4カテゴリのデータを生成（常に4つに固定）
+    const data = generateRandomData(4)
     questions.push(generateMultiCategoryQuestion(data))
   }
 

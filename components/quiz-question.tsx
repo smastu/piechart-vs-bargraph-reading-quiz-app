@@ -46,15 +46,15 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
     // 入力値の検証
     if (value === "") {
       setInputError(null)
-      setSelectedAnswer(null) // 空の場合は回答をクリア
+      setSelectedAnswer("") // 空の場合は回答をクリア
     } else {
       const numValue = Number.parseFloat(value)
       if (isNaN(numValue)) {
         setInputError("数値を入力してください")
-        setSelectedAnswer(null) // 無効な値の場合は回答をクリア
+        setSelectedAnswer("") // 無効な値の場合は回答をクリア
       } else if (numValue < 0 || numValue > 100) {
         setInputError("0から100の間の数値を入力してください")
-        setSelectedAnswer(null) // 範囲外の値の場合は回答をクリア
+        setSelectedAnswer("") // 範囲外の値の場合は回答をクリア
       } else {
         setInputError(null)
         // 有効な値の場合は即座に回答として設定
@@ -82,7 +82,7 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
       <CardHeader>
         <CardTitle>
           {isTwoCategories
-            ? "領域は全体の何パーセントぐらいだと思いますか？"
+            ? `${question.targetCategory ?? "この領域"}は全体の何パーセントぐらいだと思いますか？`
             : `${question.questionParam}番目に割合が大きいと思う領域はどれですか？`}
         </CardTitle>
       </CardHeader>

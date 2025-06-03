@@ -13,6 +13,7 @@ export interface Question {
   questionParam: number | null // rankの場合は何番目かを示す数値、percentageの場合はnull
   options: string[]
   correctAnswer: string
+  targetCategory?: string // percentage問題で問うカテゴリ名
 }
 
 export interface QuizSet {
