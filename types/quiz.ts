@@ -24,9 +24,11 @@ export interface QuizSet {
 export interface QuizResult {
   questionNumber: number
   chartType: ChartType
+  questionText: string // 問題文を追加
   data: DataItem[]
   userAnswer: string
   correctAnswer: string
   isCorrect: boolean
   timeSpent: number // ミリ秒
+  userName: string // ユーザー名を追加
 }

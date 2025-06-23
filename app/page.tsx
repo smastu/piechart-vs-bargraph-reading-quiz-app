@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { Input } from "@/components/ui/input"
 import { PieChart, BarChart } from "@/components/charts"
 import { QuizQuestion } from "@/components/quiz-question"
 import { ResultsModal } from "@/components/results-modal"
@@ -21,6 +22,8 @@ export default function Home() {
   const [isAnswered, setIsAnswered] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [userName, setUserName] = useState("")
+  const [questionStartTime, setQuestionStartTime] = useState(0)
 
   // 新しいクイズセットを生成
   const startNewQuiz = () => {
@@ -32,6 +35,7 @@ export default function Home() {
       setQuizStarted(true)
       setQuizCompleted(false)
       setStartTime(Date.now())
+      setQuestionStartTime(Date.now())
       setResults([])
       setSelectedAnswer(null)
       setIsAnswered(false)
@@ -65,11 +69,15 @@ export default function Home() {
     const result: QuizResult = {
       questionNumber: currentQuestionIndex + 1,
       chartType: currentQuestion.chartType,
+      questionText: currentQuestion.questionType === "percentage" 
+        ? `${currentQuestion.targetCategory ?? "この領域"}は全体の何パーセントぐらいだと思いますか？`
+        : `${currentQuestion.questionParam}番目に割合が大きいと思う領域はどれですか？`,
       data: currentQuestion.data,
       userAnswer: selectedAnswer,
       correctAnswer: currentQuestion.correctAnswer,
       isCorrect,
-      timeSpent: Date.now() - startTime,
+      timeSpent: Date.now() - questionStartTime,
+      userName: userName,
     }
 
     setResults([...results, result])
@@ -84,11 +92,24 @@ export default function Home() {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswer(null)
       setIsAnswered(false)
+      setQuestionStartTime(Date.now())
     } else {
       setQuizCompleted(true)
       setShowResults(true)
     }
   }
+
+    const resetQuiz = () => {
+        setQuizSet(null);
+        setCurrentQuestionIndex(0);
+        setQuizStarted(false);
+        setQuizCompleted(false);
+        setStartTime(0);
+        setResults([]);
+        setSelectedAnswer(null);
+        setIsAnswered(false);
+        setShowResults(false);
+    };
 
   // 現在の問題を取得
   const currentQuestion = quizSet?.questions[currentQuestionIndex]
@@ -111,10 +132,24 @@ export default function Home() {
               <br />
               データの種類が3つ以上の場合は、n番目に大きい領域を特定する問題です。
             </p>
-            <p>全20問あります。準備ができたらスタートボタンを押してください。</p>
+            <p className="mb-4">全20問あります。準備ができたらスタートボタンを押してください。</p>
+            
+            <div className="mb-6">
+              <label htmlFor="userName" className="block text-sm font-medium mb-2">
+                ユーザー名を入力してください（結果出力に使用されます）
+              </label>
+              <Input
+                id="userName"
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="ユーザー名を入力"
+                className="w-full max-w-xs mx-auto"
+              />
+            </div>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button size="lg" onClick={startNewQuiz} disabled={isLoading}>
+            <Button size="lg" onClick={startNewQuiz} disabled={isLoading || userName.trim() === ""}>
               {isLoading ? "準備中..." : "クイズをスタート"}
             </Button>
           </CardFooter>
@@ -176,11 +211,8 @@ export default function Home() {
             <ResultsModal
               results={results}
               totalTime={Date.now() - startTime}
-              onClose={() => {
-                setShowResults(false)
-                setQuizStarted(false)
-              }}
-              onRestart={startNewQuiz}
+              onClose={() => setShowResults(false)}
+              onRestart={resetQuiz}
             />
           )}
         </div>

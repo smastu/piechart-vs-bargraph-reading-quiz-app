@@ -36,7 +36,7 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
     )
   }
 
-  const isTwoCategories = question.data.length === 2
+  const isPercentageQuestion = question.questionType === "percentage"
 
   // 入力値が変更されたときの処理
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,13 +81,13 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
     <Card>
       <CardHeader>
         <CardTitle>
-          {isTwoCategories
+          {isPercentageQuestion
             ? `${question.targetCategory ?? "この領域"}は全体の何パーセントぐらいだと思いますか？`
             : `${question.questionParam}番目に割合が大きいと思う領域はどれですか？`}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isTwoCategories ? (
+        {isPercentageQuestion ? (
           <div className="space-y-4">
             <div className="flex space-x-2">
               <Input

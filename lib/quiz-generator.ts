@@ -17,27 +17,45 @@ function generateRandomData(categoryCount: number): DataItem[] {
   const categories = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
   const data: DataItem[] = []
 
-  // 合計が100になるようにランダムな値を生成
-  let remainingTotal = 100
-
-  for (let i = 0; i < categoryCount - 1; i++) {
-    // 最後のカテゴリ以外はランダムな値を割り当て
-    const maxValue = remainingTotal - (categoryCount - i - 1) // 残りのカテゴリに最低1ずつ割り当てるための調整
-    const value = getRandomInt(1, maxValue)
-
+  // 各カテゴリの制限値を設定
+  const minValuePerCategory = 5  // 5%以上
+  const maxValuePerCategory = 49 // 50%未満
+  
+  // 全カテゴリに最低値を割り当て
+  let remainingTotal = 100 - (categoryCount * minValuePerCategory)
+  
+  // 各カテゴリに最低値を設定
+  for (let i = 0; i < categoryCount; i++) {
     data.push({
       name: categories[i],
-      value: value,
+      value: minValuePerCategory,
     })
-
-    remainingTotal -= value
   }
 
-  // 最後のカテゴリには残りの値を割り当て
-  data.push({
-    name: categories[categoryCount - 1],
-    value: remainingTotal,
-  })
+  // 残りの値をランダムに分配
+  while (remainingTotal > 0) {
+    const randomIndex = getRandomInt(0, categoryCount - 1)
+    
+    // そのカテゴリが最大値未満の場合のみ加算
+    if (data[randomIndex].value < maxValuePerCategory) {
+      data[randomIndex].value += 1
+      remainingTotal -= 1
+    }
+    
+    // 全てのカテゴリが最大値に達した場合は強制終了
+    if (data.every(item => item.value >= maxValuePerCategory)) {
+      break
+    }
+  }
+
+  // 残りがある場合は適当に分配（通常は発生しない）
+  if (remainingTotal > 0) {
+    for (let i = 0; i < categoryCount && remainingTotal > 0; i++) {
+      const addValue = Math.min(remainingTotal, maxValuePerCategory - data[i].value)
+      data[i].value += addValue
+      remainingTotal -= addValue
+    }
+  }
 
   return data
 }
@@ -87,18 +105,36 @@ export function generateQuizSet(): QuizSet {
   const setId = getRandomInt(1, 10)
   const questions: Question[] = []
 
-  // パーセンテージ問題を10問生成
-  for (let i = 0; i < 10; i++) {
-    // 2カテゴリのデータを生成
-    const data = generateRandomData(2)
-    questions.push(generateTwoCategoryQuestion(data))
+  // 円グラフ用の問題を10問生成（パーセンテージ5問、ランク5問）
+  for (let i = 0; i < 5; i++) {
+    // パーセンテージ問題（円グラフ）
+    const categoryCount = getRandomInt(3, 4)
+    const data = generateRandomData(categoryCount)
+    const percentageQuestion = generateTwoCategoryQuestion(data)
+    percentageQuestion.chartType = "pie"
+    questions.push(percentageQuestion)
+
+    // ランク問題（円グラフ）
+    const rankData = generateRandomData(4)
+    const rankQuestion = generateMultiCategoryQuestion(rankData)
+    rankQuestion.chartType = "pie"
+    questions.push(rankQuestion)
   }
 
-  // ランク問題を10問生成
-  for (let i = 0; i < 10; i++) {
-    // 4カテゴリのデータを生成（常に4つに固定）
-    const data = generateRandomData(4)
-    questions.push(generateMultiCategoryQuestion(data))
+  // 帯グラフ用の問題を10問生成（パーセンテージ5問、ランク5問）
+  for (let i = 0; i < 5; i++) {
+    // パーセンテージ問題（帯グラフ）
+    const categoryCount = getRandomInt(3, 4)
+    const data = generateRandomData(categoryCount)
+    const percentageQuestion = generateTwoCategoryQuestion(data)
+    percentageQuestion.chartType = "bar"
+    questions.push(percentageQuestion)
+
+    // ランク問題（帯グラフ）
+    const rankData = generateRandomData(4)
+    const rankQuestion = generateMultiCategoryQuestion(rankData)
+    rankQuestion.chartType = "bar"
+    questions.push(rankQuestion)
   }
 
   // 問題をシャッフル
