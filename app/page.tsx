@@ -60,7 +60,19 @@ export default function Home() {
 
       // 正解との差が5%以内なら正解とする
       const tolerance = 5
-      isCorrect = Math.abs(userAnswerValue - correctAnswerValue) <= tolerance
+      const difference = Math.abs(userAnswerValue - correctAnswerValue)
+      isCorrect = difference <= tolerance
+
+      // デバッグ情報をコンソールに出力
+      console.log("パーセンテージ問題の判定:", {
+        userAnswer: selectedAnswer,
+        userAnswerValue,
+        correctAnswer: currentQuestion.correctAnswer,
+        correctAnswerValue,
+        difference,
+        tolerance,
+        isCorrect
+      })
     } else {
       // ランク問題の場合は完全一致で判定
       isCorrect = selectedAnswer === currentQuestion.correctAnswer
@@ -69,7 +81,7 @@ export default function Home() {
     const result: QuizResult = {
       questionNumber: currentQuestionIndex + 1,
       chartType: currentQuestion.chartType,
-      questionText: currentQuestion.questionType === "percentage" 
+      questionText: currentQuestion.questionType === "percentage"
         ? `${currentQuestion.targetCategory ?? "この領域"}は全体の何パーセントぐらいだと思いますか？`
         : `${currentQuestion.questionParam}番目に割合が大きいと思う領域はどれですか？`,
       data: currentQuestion.data,
@@ -133,7 +145,7 @@ export default function Home() {
               データの種類が3つ以上の場合は、n番目に大きい領域を特定する問題です。
             </p>
             <p className="mb-4">全20問あります。準備ができたらスタートボタンを押してください。</p>
-            
+
             <div className="mb-6">
               <label htmlFor="userName" className="block text-sm font-medium mb-2">
                 ユーザー名を入力してください（結果出力に使用されます）

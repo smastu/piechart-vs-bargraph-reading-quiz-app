@@ -38,10 +38,43 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
 
   const isPercentageQuestion = question.questionType === "percentage"
 
+  // パーセンテージ問題の正解判定関数
+  const isAnswerCorrect = (userAnswer: string, correctAnswer: string): boolean => {
+    if (question.questionType === "percentage") {
+      const userAnswerValue = Number.parseFloat(userAnswer.replace("%", ""))
+      const correctAnswerValue = Number.parseFloat(correctAnswer.replace("%", ""))
+      const tolerance = 5
+      const difference = Math.abs(userAnswerValue - correctAnswerValue)
+      const isCorrect = difference <= tolerance
+
+      // デバッグ情報をコンソールに出力
+      console.log("QuizQuestionでの正解判定:", {
+        userAnswer,
+        userAnswerValue,
+        correctAnswer,
+        correctAnswerValue,
+        difference,
+        tolerance,
+        isCorrect
+      })
+
+      return isCorrect
+    } else {
+      return userAnswer === correctAnswer
+    }
+  }
+
   // 入力値が変更されたときの処理
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setInputValue(value)
+
+    // デバッグ情報をコンソールに出力
+    console.log("入力値の変更:", {
+      rawValue: value,
+      parsedValue: Number.parseFloat(value),
+      isNaN: isNaN(Number.parseFloat(value))
+    })
 
     // 入力値の検証
     if (value === "") {
@@ -58,7 +91,9 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
       } else {
         setInputError(null)
         // 有効な値の場合は即座に回答として設定
-        setSelectedAnswer(`${numValue}%`)
+        const answerWithPercent = `${numValue}%`
+        setSelectedAnswer(answerWithPercent)
+        console.log("回答として設定:", answerWithPercent)
       }
     }
   }
@@ -133,14 +168,14 @@ export function QuizQuestion({ question, selectedAnswer, setSelectedAnswer, isAn
         {isAnswered && (
           <Alert
             className={`mt-4 ${
-              selectedAnswer === question.correctAnswer
+              isAnswerCorrect(selectedAnswer || "", question.correctAnswer)
                 ? "border-green-500 bg-green-50 dark:bg-green-950/20"
                 : "border-red-500 bg-red-50 dark:bg-red-950/20"
             }`}
           >
             <AlertDescription>
-              {selectedAnswer === question.correctAnswer
-                ? "正解です！"
+              {isAnswerCorrect(selectedAnswer || "", question.correctAnswer)
+                ? `正解です！実際の値は「${question.correctAnswer}」でした。`
                 : `不正解です。正解は「${question.correctAnswer}」です。`}
             </AlertDescription>
           </Alert>
