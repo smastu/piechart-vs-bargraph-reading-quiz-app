@@ -26,24 +26,24 @@
 ## セットアップ
 
 1. リポジトリのクローン
-```bash
+\`\`\`bash
 git clone [repository-url]
 cd piechart-vs-bargraph-reading-quiz-app
-```
+\`\`\`
 
 2. 依存関係のインストール
-```bash
+\`\`\`bash
 # pnpmがインストールされていない場合は先にインストール
 npm install -g pnpm
 
 # プロジェクトの依存関係をインストール
 pnpm install
-```
+\`\`\`
 
 3. 開発サーバーの起動
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 4. ブラウザで http://localhost:3000 にアクセス
 
@@ -53,36 +53,36 @@ pnpm dev
    - ターミナルで `Ctrl + C` を押す
 
 2. サーバーを再起動
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 ## トラブルシューティング
 
 ### サーバーが起動しない場合
 
 1. ポート3000が使用中の場合
-```bash
+\`\`\`bash
 # Windowsの場合
 netstat -ano | findstr 3000
 # 使用中のプロセスを終了するか、別のポートを指定
 set PORT=3001
 pnpm dev
-```
+\`\`\`
 
 2. 依存関係の問題
-```bash
+\`\`\`bash
 # node_modulesを削除して再インストール
 rm -rf node_modules
 pnpm install
-```
+\`\`\`
 
 3. キャッシュの問題
-```bash
+\`\`\`bash
 # Next.jsのキャッシュをクリア
 rm -rf .next
 pnpm dev
-```
+\`\`\`
 
 ### ページが表示されない場合
 
@@ -109,9 +109,9 @@ pnpm dev
 ### その他のホスティングサービスへのデプロイ
 
 1. プロジェクトのビルド
-```bash
+\`\`\`bash
 pnpm build
-```
+\`\`\`
 
 2. 生成された`out`ディレクトリの内容をホスティングサービスにアップロード
 

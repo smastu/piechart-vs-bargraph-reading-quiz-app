@@ -27,14 +27,26 @@ export function ResultsModal({ results, totalTime, onClose, onRestart }: Results
 
   const downloadResults = () => {
     // CSVデータの作成
-    const headers = "問題番号,グラフタイプ,データ,ユーザー回答,正解,正誤,所要時間(ms)\n"
+    const userName = results[0]?.userName || "匿名"
+    const headers = "ユーザー名,問題番号,グラフタイプ,問題文,データ詳細,ユーザー回答,正解,正誤,問題所要時間(秒),全体正解率,全体所要時間(秒)\n"
     const csvData = results
-      .map((result) => {
-        return `${result.questionNumber},${
+      .map((result, index) => {
+        // データをより読みやすい形式に変換
+        const dataDetails = result.data.map(item => `${item.name}:${item.value}%`).join('; ')
+        
+        // その問題までの累積正解率を計算
+        const resultsUpToThisPoint = results.slice(0, index + 1)
+        const correctAnswersUpToThisPoint = resultsUpToThisPoint.filter(r => r.isCorrect).length
+        const cumulativeAccuracy = (correctAnswersUpToThisPoint / resultsUpToThisPoint.length) * 100
+        
+        // その問題までの累積所要時間を計算
+        const cumulativeTime = resultsUpToThisPoint.reduce((total, r) => total + r.timeSpent, 0)
+        
+        return `${userName},${result.questionNumber},${
           result.chartType === "pie" ? "円グラフ" : "帯グラフ"
-        },"${JSON.stringify(result.data)}",${result.userAnswer},${result.correctAnswer},${
+        },"${result.questionText}","${dataDetails}",${result.userAnswer},${result.correctAnswer},${
           result.isCorrect ? "正解" : "不正解"
-        },${result.timeSpent}`
+        },${(result.timeSpent / 1000).toFixed(2)},${cumulativeAccuracy.toFixed(1)}%,${(cumulativeTime / 1000).toFixed(1)}`
       })
       .join("\n")
 
@@ -45,7 +57,7 @@ export function ResultsModal({ results, totalTime, onClose, onRestart }: Results
     // ダウンロードリンクの作成とクリック
     const link = document.createElement("a")
     link.href = url
-    link.setAttribute("download", `quiz-results-${new Date().toISOString().slice(0, 10)}.csv`)
+    link.setAttribute("download", `quiz-results-${userName}-${new Date().toISOString().slice(0, 10)}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -53,7 +65,7 @@ export function ResultsModal({ results, totalTime, onClose, onRestart }: Results
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">クイズ結果</DialogTitle>
         </DialogHeader>
@@ -82,15 +94,17 @@ export function ResultsModal({ results, totalTime, onClose, onRestart }: Results
           </div>
         </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleClose} className="sm:w-full">
-            閉じる
-          </Button>
-          <Button onClick={onRestart} className="sm:w-full">
-            <RotateCcw className="mr-2 h-4 w-4" />
-            もう一度挑戦
-          </Button>
-          <Button onClick={downloadResults} variant="secondary" className="sm:w-full">
+        <DialogFooter className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+            <Button variant="outline" onClick={handleClose} className="flex-1">
+              閉じる
+            </Button>
+            <Button onClick={onRestart} className="flex-1">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              もう一度挑戦
+            </Button>
+          </div>
+          <Button onClick={downloadResults} variant="secondary" className="w-full">
             <Download className="mr-2 h-4 w-4" />
             結果をダウンロード
           </Button>
